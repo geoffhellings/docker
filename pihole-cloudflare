@@ -1,0 +1,44 @@
+version: '3.8'
+
+services:
+  cloudflared_dns:
+    image: cloudflare/cloudflared:latest
+    container_name: cloudflared_dns
+    networks:
+      - pihole_network
+    restart: unless-stopped
+    environment:
+      - TUNNEL_DNS_UPSTREAM=https://1.1.1.1/dns-query
+      - TUNNEL_DNS_UPSTREAM_2=https://1.0.0.1/dns-query
+      - TUNNEL_DNS_ADDRESS=0.0.0.0
+      - TUNNEL_DNS_PORT=5053
+    command: proxy-dns
+
+  pihole:
+    image: pihole/pihole:latest
+    container_name: pihole
+    networks:
+      - pihole_network
+    restart: unless-stopped
+    environment:
+      - TZ=YOUR_TIMEZONE
+      - WEBPASSWORD=m12mA1ma!server
+      - PIHOLE_DNS_=cloudflared_dns#5053
+      - DNSMASQ_LISTENING=all
+    volumes:
+      - pihole_data:/etc/pihole
+      - dnsmasq_data:/etc/dnsmasq.d
+    ports:
+      - "80:80"
+      - "53:53/tcp"
+      - "53:53/udp"
+    cap_add:
+      - NET_ADMIN
+
+networks:
+  pihole_network:
+    driver: bridge
+
+volumes:
+  pihole_data:
+  dnsmasq_data:
