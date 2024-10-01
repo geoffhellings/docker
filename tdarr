@@ -1,0 +1,48 @@
+version: '2.2'
+
+services:
+  tdarr:
+    image: haveagitgat/tdarr:latest
+    container_name: tdarr
+    environment:
+      - PUID=1000 # change to your user id
+      - PGID=1000 # change to your group id
+      - TZ=Etc/UTC
+      - serverIP=192.168.50.20
+    volumes:
+      - /srv/tdarr/config:/app/server
+      - /media:/media
+    ports:
+      - 8265:8265
+    devices:
+      - /dev/dri:/dev/dri  # Exposing Intel Quick Sync device
+    networks:
+      - tdarr_net
+    restart: unless-stopped
+
+  tdarr_node:
+    image: haveagitgat/tdarr_node:latest
+    container_name: tdarr_node
+    environment:
+      - PUID=1000 # change to your user id
+      - PGID=1000 # change to your group id
+      - TZ=Etc/UTC
+      - serverIP=172.18.0.2
+      - TDARR_NODE_NAME=node_quicksync
+    volumes:
+      - /srv/tdarr/node_config:/app/config
+      - /media:/media
+    ports:
+      - 8266:8266
+    devices:
+      - /dev/dri:/dev/dri  # Exposing Intel Quick Sync device
+    networks:
+      - tdarr_net
+    restart: unless-stopped
+
+networks:
+  tdarr_net:
+    driver: bridge
+
+
+
