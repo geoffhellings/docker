@@ -4,6 +4,6 @@ services:
     image: openspeedtest/latest
     container_name: openspeedtest
     ports:
-      - '3000:3000'
-      - '3001:3001'
+      - '3030:3000'
+      - '3031:3001'
     restart: unless-stopped
